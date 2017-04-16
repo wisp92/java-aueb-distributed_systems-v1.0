@@ -1,6 +1,8 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Configuration extends Properties {
@@ -12,10 +14,10 @@ public class Configuration extends Properties {
 		
 		super();
 		
-		try (InputStream in = getClass().getClassLoader()
-			 .getResourceAsStream(filename)
-		) {
-			this.load(in);			
+		try (InputStream in = Files.newInputStream(Paths.get(filename))) {
+			
+			this.load(in);	
+			
 		}
 		catch (FileNotFoundException ex) {
 			throw ex;
