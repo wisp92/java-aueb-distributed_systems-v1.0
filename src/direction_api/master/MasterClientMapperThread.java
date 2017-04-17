@@ -1,18 +1,23 @@
+package direction_api.master;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import direction_api.common.ClientThread;
+import direction_api.common.structures.Query;
+import direction_api.common.structures.SocketInformation;
+
 public class MasterClientMapperThread extends ClientThread {
 	
-	protected Query route_query;
-	protected SocketStructure reducer_socket;
-	protected int id;
+	protected final Query route_query;
+	protected final SocketInformation reducer_socket;
+	protected final int id;
 	
 	public MasterClientMapperThread(
-		SocketStructure socket,
-		int id,
-		Query route_query,
-		SocketStructure reducer_socket
-	) throws IOException, UnknownHostException {
+			SocketInformation socket, 
+			int id, 
+			Query route_query, 
+			SocketInformation reducer_socket
+			) throws IOException, UnknownHostException {
 		super(socket);
 		
 		this.route_query    = route_query;
@@ -33,8 +38,8 @@ public class MasterClientMapperThread extends ClientThread {
 		this.out.writeObject(this.reducer_socket);
 		this.out.flush();
 		
-		// TODO: Remove this.
-		System.out.println("Mapper replied: " + this.in.readBoolean());
+		// TODO: Check if need to resent.
+		this.in.readBoolean();
 		
 		this.setCompleted();
 		
