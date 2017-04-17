@@ -17,7 +17,7 @@ public class ReducerServerThread extends ServerThread {
 			// TODO: First should check if the connection is from master or mapper.
 			int type_of_connection = 0;
 			
-			int id        = this.in.readInt();
+			int id = this.in.readInt();
 			
 			switch(type_of_connection) {
 				case 0:

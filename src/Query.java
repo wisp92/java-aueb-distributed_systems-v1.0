@@ -4,22 +4,22 @@ public class Query implements Serializable {
 
 	private static final long serialVersionUID = -3481780946666495460L;
 	
-	private int source_postal_code;
-	private int destination_postal_code;
+	private final Position source;
+	private final Position destination;
 	
-	public Query(int source_postal_code, int destination_postal_code) {
+	public Query(Position source, Position destination) {
 		
-		this.source_postal_code      = source_postal_code;
-		this.destination_postal_code = destination_postal_code;
+		this.source      = source;
+		this.destination = destination;
 		
 	}
 	
-	public int getSourcePostalCode() {
-		return this.source_postal_code;
+	public Position getSource() {
+		return this.source;
 	}
 	
-	public int getDestinationPostalCode() {
-		return this.destination_postal_code;
+	public Position getDestination() {
+		return this.destination;
 	}
 	
 }

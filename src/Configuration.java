@@ -12,9 +12,9 @@ public class Configuration extends Properties {
 
 	public Configuration(String filename) throws IOException {
 		
-		super();
+		super();		
 		
-		try (InputStream in = Files.newInputStream(Paths.get(filename))) {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(filename)) {
 			
 			this.load(in);	
 			

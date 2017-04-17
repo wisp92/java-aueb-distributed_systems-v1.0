@@ -23,7 +23,7 @@ public class MapperClientReducerThread extends ClientThread {
 		this.out.writeObject(this.routes);
 		this.out.flush();
 		
-		// TODO: Retry in negative response.
+		// TODO: Remove this.
 		System.out.println("Reducer replied: " + this.in.readBoolean());
 		
 		this.setCompleted();

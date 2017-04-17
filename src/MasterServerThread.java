@@ -25,10 +25,12 @@ public class MasterServerThread extends ServerThread {
 	@Override
 	protected void task() throws IOException {
 		
-		// TODO: Should be synchronized.
-		int id = this.client_ids.getAvailableClientID();
-		
+		int id;
 		boolean completed = true;
+		
+		synchronized (this.client_ids) {
+			id = this.client_ids.getAvailableClientID();
+		}
 		
 		try {
 			

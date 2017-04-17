@@ -11,7 +11,10 @@ public class MobileClientMasterThread extends ClientThread {
 	@Override
 	protected void task() throws IOException {
 		
-		Query query = new Query(0,0);
+		Query query = new Query(
+			new Position(37.983810, 23.727539),
+			new Position(38.012097, 23.772572)
+		);
 		
 		this.out.writeObject(query);
 		this.out.flush();
@@ -22,9 +25,8 @@ public class MobileClientMasterThread extends ClientThread {
 		this.isCompleted();
 		
 	}
-
+	
 	public static void main(String args[]) {
-		
 		
 		try {
 			
