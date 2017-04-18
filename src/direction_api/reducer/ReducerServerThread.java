@@ -41,7 +41,7 @@ public class ReducerServerThread extends ServerThread {
 					
 				case 1:
 					
-					synchronized (this.stored_routes) {
+					synchronized (this.stored_routes) { // TODO: Store to variable first.
 						
 						if (stored_routes.containsKey(id)) {
 							this.out.writeObject(stored_routes.get(id));

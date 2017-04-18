@@ -116,8 +116,12 @@ public class MasterServerThread extends ServerThread {
 					
 					routes = this.contactReducer(reducer_socket, id);
 					
+					// TODO: Release ID.
+					
 					synchronized (this.cached_routes) {
 						this.cached_routes.put(query, routes);
+						
+						// TODO: Keep only recent.
 					}
 					
 				}

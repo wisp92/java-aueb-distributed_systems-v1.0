@@ -1,11 +1,12 @@
 package direction_api.common.structures;
+
 import java.io.Serializable;
 
 import direction_api.common.Hash;
 
 /**
  * 
- * @author p3100161, [Jenny's ID]
+ * @author p3100161, p3130029
  *
  */
 
@@ -34,7 +35,7 @@ public class Coordinates implements Serializable {
 	
 	/*
 	 * We provide some basic and some more practical getters used
-	 * mainly for searching by the mapper.
+	 * mainly for searching the mapper's database.
 	 */
 	
 	public double getLatitude(int digits) {
@@ -63,6 +64,10 @@ public class Coordinates implements Serializable {
 		return this.getLatitude() + "," + this.getLongitude();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object object) {
 		
@@ -72,7 +77,7 @@ public class Coordinates implements Serializable {
 			is_equal =  true;
 		}
 		else if (object instanceof Coordinates) {
-				
+			
 			Coordinates coordinates = (Coordinates)object;
 			is_equal = ((coordinates.getLatitude() == this.getLatitude()) &&
 					(coordinates.getLongitude() == this.getLongitude()));
@@ -83,17 +88,32 @@ public class Coordinates implements Serializable {
 	
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
+		/*
+		 * Since the getSHA1() is based on the latitude
+		 * and longitude values the hashCode() complies
+		 * with the corresponding equals() method.
+		 */
 		return this.getSHA1().hashCode();
 	}
 	
+	/*
+	 * Computes the SHA-1 hash digest of the object's
+	 * coordinates.
+	 */
 	public String getSHA1() {
-		return Hash.getHash(this.toString(), "SHA-1");
+		return Hash.getHash(String.valueOf(this.getLatitude()) +
+				String.valueOf(this.getLongitude()), "SHA-1");
 	}
 	
 	/*
-	 * Returns a a double having truncate some of the finals decimals digits.
+	 * Returns a a double having truncate some of the finals
+	 * decimals digits.
 	 */
 	private static double getFlooredDouble(double value, int no_decimals) {
 		

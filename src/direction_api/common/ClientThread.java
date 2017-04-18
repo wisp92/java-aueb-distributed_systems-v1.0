@@ -1,4 +1,5 @@
 package direction_api.common;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -8,7 +9,7 @@ import java.net.UnknownHostException;
 
 /**
  * 
- * @author p3100161, [Jenny's ID]
+ * @author p3100161, p3130029
  *
  */
 

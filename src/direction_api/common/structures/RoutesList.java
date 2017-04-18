@@ -1,15 +1,16 @@
 package direction_api.common.structures;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * 
- * @author p3100161, [Jenny's ID]
+ * @author p3100161, p3130029
  *
  */
 
 /*
- * Creates RoutesList object that is serializable array of routes.
+ * Creates RoutesList object that is a serializable array of routes.
  * A route is represented by s String object in JSON format as
  * provided by the Google's direction API.
  */

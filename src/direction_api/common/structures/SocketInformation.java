@@ -1,9 +1,10 @@
 package direction_api.common.structures;
+
 import java.io.Serializable;
 
 /**
  * 
- * @author p3100161, [Jenny's ID]
+ * @author p3100161, p3130029
  *
  */
 

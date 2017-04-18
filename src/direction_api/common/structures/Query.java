@@ -1,11 +1,12 @@
 package direction_api.common.structures;
+
 import java.io.Serializable;
 
 import direction_api.common.Hash;
 
 /**
  * 
- * @author p3100161, [Jenny's ID]
+ * @author p3100161, p3130029
  *
  */
 
@@ -40,6 +41,10 @@ public class Query implements Serializable {
 		return this.destination;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object object) {
 		
@@ -51,6 +56,10 @@ public class Query implements Serializable {
 		else if (object instanceof Query) {
 			
 			Query query = (Query)object;
+			/*
+			 * Equality between  queries is determined by the relation
+			 * of each ones source and destination.
+			 */
 			is_equal = ((query.getSource().equals(this.getSource())) &&
 					(query.getDestination().equals(this.getDestination())));
 					
@@ -60,11 +69,24 @@ public class Query implements Serializable {
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
+		/*
+		 * Since the getSHA1() is based on the source
+		 * and destination values the hashCode() complies
+		 * with the corresponding equals() method.
+		 */
 		return this.getSHA1().hashCode();
 	}
 	
+	/*
+	 * Computes the SHA-1 hash digest of the object's
+	 * coordinates.
+	 */
 	public String getSHA1() {
 		return Hash.getHash(this.getSource().toString() +
 				this.getDestination().toString(), "SHA-1");
