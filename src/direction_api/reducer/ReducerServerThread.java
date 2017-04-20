@@ -3,10 +3,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 
-import direction_api.common.ServerThread;
+import direction_api.common.Server;
 import direction_api.common.structures.RoutesList;
 
-public class ReducerServerThread extends ServerThread {
+public class ReducerServerThread extends Server {
 	
 	private final HashMap<Integer, RoutesList> stored_routes;
 	

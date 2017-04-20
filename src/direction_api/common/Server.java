@@ -13,10 +13,10 @@ import java.net.Socket;
  */
 
 /*
- * Creates a ServerThread object responsible for serving a
+ * Creates a Server object responsible for serving a
  * ClientThread object trying to communicate with the local host.
  */
-public abstract class ServerThread extends Thread implements Closeable {
+public abstract class Server extends Thread implements Closeable {
 	
 	protected final ObjectInputStream in;
 	protected final ObjectOutputStream out;
@@ -32,7 +32,7 @@ public abstract class ServerThread extends Thread implements Closeable {
 	protected abstract void task() throws IOException; // TODO: Should be added in a superclass.
 	
 	/**
-	 * A ServerThread object can be initialized by providing a temporary
+	 * A Server object can be initialized by providing a temporary
 	 * local socket of the connection. 
 	 * The provided socket since temporary is going to be closed at the
 	 * end of the communication.
@@ -41,13 +41,13 @@ public abstract class ServerThread extends Thread implements Closeable {
 	 * @param socket
 	 * @throws IOException
 	 */
-	public ServerThread(Socket socket) throws IOException {
+	public Server(Socket socket) throws IOException {
 		
 		this.socket = socket;
 		
 		/*
 		 * As a convention ObjectInputStream should be initialized before
-		 * the ObjectOutputStream of a ServerThread object in order to be
+		 * the ObjectOutputStream of a Server object in order to be
 		 * possible the communication with the corresponding ClientThread object.
 		 */
 		this.in  = new ObjectInputStream(this.socket.getInputStream());

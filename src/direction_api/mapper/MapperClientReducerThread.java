@@ -2,11 +2,11 @@ package direction_api.mapper;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import direction_api.common.ClientThread;
+import direction_api.common.Client;
 import direction_api.common.structures.RoutesList;
 import direction_api.common.structures.SocketInformation;
 
-public class MapperClientReducerThread extends ClientThread {
+public class MapperClientReducerThread extends Client {
 	
 	public static final int default_type_of_connection = 0;
 	

@@ -2,11 +2,11 @@ package direction_api.master;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import direction_api.common.ClientThread;
+import direction_api.common.Client;
 import direction_api.common.structures.Query;
 import direction_api.common.structures.SocketInformation;
 
-public class MasterClientMapperThread extends ClientThread {
+public class MasterClientMapperThread extends Client {
 	
 	protected final Query route_query;
 	protected final SocketInformation reducer_socket;

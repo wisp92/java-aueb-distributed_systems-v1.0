@@ -2,12 +2,12 @@ package direction_api.master;
 import java.io.IOException;
 import java.util.HashMap;
 
-import direction_api.common.ServerThread;
+import direction_api.common.Server;
 import direction_api.common.structures.Query;
 import direction_api.common.structures.RoutesList;
 import direction_api.common.structures.SocketInformation;
 
-public class MasterServerThread extends ServerThread {
+public class MasterServerThread extends Server {
 	// This thread is being called by the mapper in order to execute the request.
 	
 	private final SocketInformation[] mapper_sockets;

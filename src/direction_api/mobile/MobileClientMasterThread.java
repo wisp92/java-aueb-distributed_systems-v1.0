@@ -2,13 +2,13 @@ package direction_api.mobile;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import direction_api.common.ClientThread;
+import direction_api.common.Client;
 import direction_api.common.structures.Coordinates;
 import direction_api.common.structures.Query;
 import direction_api.common.structures.RoutesList;
 import direction_api.common.structures.SocketInformation;
 
-public class MobileClientMasterThread extends ClientThread {
+public class MobileClientMasterThread extends Client {
 	// Communicates with a MapperThread in order to send the request.
 	
 	public MobileClientMasterThread(SocketInformation socket)

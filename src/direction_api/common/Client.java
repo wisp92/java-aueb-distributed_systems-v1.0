@@ -14,10 +14,10 @@ import java.net.UnknownHostException;
  */
 
 /*
- * Creates a ClientThread object responsible for communicating with
- * ServerThread object running on a local or remote host.
+ * Creates a Client object responsible for communicating with
+ * Server object running on a local or remote host.
  */
-public abstract class ClientThread extends Thread implements Closeable {
+public abstract class Client extends Thread implements Closeable {
 	
 	protected final ObjectInputStream in;
 	protected final ObjectOutputStream out;
@@ -33,7 +33,7 @@ public abstract class ClientThread extends Thread implements Closeable {
 	protected abstract void task() throws IOException; // TODO: Should be added in a superclass.
 	
 	/**
-	 * A ClientThread object can be initialized by providing the ServerThread
+	 * A ClientThread object can be initialized by providing the Server
 	 * object's Listening socket specifications.
 	 * An exception may be raised if the provided host is unknown or if the
 	 * streams could not be initialized properly.
@@ -41,15 +41,15 @@ public abstract class ClientThread extends Thread implements Closeable {
 	 * @throws IOException
 	 * @throws UnknownHostException
 	 */
-	public ClientThread(direction_api.common.structures.SocketInformation socket)
+	public Client(direction_api.common.structures.SocketInformation socket)
 			throws IOException, UnknownHostException {
 		
 		this.socket = new Socket(socket.getHost(), socket.getPort());
 		
 		/*
 		 * As a convention ObjectOutputsStream should be initialized before
-		 * the ObjectInputStream of a ClientThread object in order to be
-		 * possible the communication with the corresponding ServerThread object.
+		 * the ObjectInputStream of a Client object in order to be
+		 * possible the communication with the corresponding Server object.
 		 */
 		this.out = new ObjectOutputStream(this.socket.getOutputStream());
 		this.in  = new ObjectInputStream(this.socket.getInputStream());

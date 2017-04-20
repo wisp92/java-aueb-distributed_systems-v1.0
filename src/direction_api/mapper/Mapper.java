@@ -1,11 +1,11 @@
 package direction_api.mapper;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.URL;
-import java.util.ArrayDeque;
+import java.net.Socket;
 
+import direction_api.common.ServerManager;
 import direction_api.common.Configuration;
+import direction_api.common.Server;
 
 /**
  * 
@@ -13,128 +13,86 @@ import direction_api.common.Configuration;
  *
  */
 
-
-public class Mapper {
+/*
+ * Creates a Mapper object as direct implementation of ServerManager object.
+ * A Mapper object should also initialize the central database that each of
+ * its threads is going to search first in order to find a the possible route
+ * for the query.
+ */
+public class Mapper extends ServerManager {
 
 	public static final String default_database_name  = "mapper.sqlite3";
 	public static final String default_conf_file      = "mapper.properties";
-	/*
-	 * If default_port is set as 0 then a random port is going
-	 * to be used to create the server socket in case no port
-	 * has been set.
-	 */
-	public static final int default_port = 0;
-	/*
-	 * If default_no_connections is set as 0 then no quote to
-	 * the number of incoming connections is going to be set
-	 * in case the number has not been provided.
-	 */
-	public static final int default_no_connections = 0;
 	
-	private Configuration  configuration;
-	private ServerSocket   server_socket;
 	private MapperDatabase database;
-	private int            port;
-	private int            no_connections;
-	
-	/**
-	 * The default constructors initialized the the Mapper object
-	 * with the default variables and according to a default
-	 * configuration file if it exists.
+	/*
+	 * Since its personal data should always be provided by
+	 * the administrator.
 	 */
-	public Mapper() {
-		
-		URL resource = Mapper.class.getResource(default_conf_file);
-		
-		this.setPort(default_port);
-		this.setNumberOfAllowedConnections(default_no_connections);
-		this.setDatabase(default_database_name);
-		
-		if (resource instanceof URL) {
-			this.loadConfigurationFile(resource.getPath());
-		}
-
-	}
+	private final String google_api_key;
 	
-	/**
-	 * The various configuration options can also be provided through
-	 * the use of a file.
-	 * @param path
-	 */
-	public Mapper(String path) {
-		this();
+	public Mapper(String google_api_key) {
+		super();
 		
-		if (this.configuration.getPath() != path) {
-			this.loadConfigurationFile(path);
+		if (this.database instanceof MapperDatabase) {
+			this.setDatabase(default_database_name);
 		}
+		
+		this.google_api_key = google_api_key;
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see direction_api.common.ServerManager#loadConfigurationFile(java.lang.String)
+	 */
+	@Override
 	public void loadConfigurationFile(String path) {
-		
-		this.configuration = new Configuration(path);
+		super.loadConfigurationFile(path);
 		
 		if (this.configuration.contains("database_name")) {
 				this.setDatabase(this.configuration.getString("database_name"));
 		}
 		
-		this.setPort(this.configuration.getInt("port", this.port));
-		this.setNumberOfAllowedConnections(
-				this.configuration.getInt("number_of_allowed_connections", this.no_connections));
-		
-	}
-	
-	public void setPort(int port) {
-		this.port =  port;
-	}
-	
-	public void setNumberOfAllowedConnections(int no_connections) {
-		this.no_connections = no_connections;
 	}
 	
 	public void setDatabase(String database_name) {
 		this.database = new MapperDatabase(database_name);
 	}
-	
-	public void start() {
-		
-		ArrayDeque<MapperServerThread> threads = new ArrayDeque<MapperServerThread>();
-		
-		try {
-			
-			this.server_socket = new ServerSocket(this.port, this.no_connections);
-			
-			while (true) {
-				
-				MapperServerThread thread = new MapperServerThread(
-						this.server_socket.accept(), this.database);
-				thread.start();
-				threads.addLast(thread);
-				
-			}
-			
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			
-			try {
-				
-				if (!this.server_socket.isClosed()) {
-					this.server_socket.close();
-				}
-				
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-			
-		}
-		
-	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see direction_api.common.ServerManager#initServerThread(java.net.Socket)
+	 */
+	protected Server initServerThread(Socket socket) throws IOException {
+		return new MapperServer(socket, this.database, this.google_api_key);
+	}
+	
 	public static void main(String args[]) {
 		
-		Mapper mapper = new Mapper();
-		mapper.start();
+		String google_api_key = null;
+		
+		/*
+		 * We try to find the Google API key first in the program's
+		 * arguments and then on a default location.
+		 */
+		if (args.length >= 1) {
+			google_api_key = args[0];
+		}
+		else {
+			google_api_key = (new Configuration(
+					"google_api_key")).getString("google_api_key");
+		}
+		
+		/*
+		 * The server can start only by specifying the Google API key.
+		 */
+		if (google_api_key instanceof String) {
+			
+			Mapper mapper = new Mapper(google_api_key);
+			mapper.start();
+			
+		}
 		
 	}
 	
