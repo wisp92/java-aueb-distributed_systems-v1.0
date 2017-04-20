@@ -3,6 +3,8 @@ package direction_api.common.structures;
 import java.io.Serializable;
 
 import direction_api.common.Hash;
+import direction_api.common.Constants;
+import direction_api.common.Constants.DistanceAlgorithm;
 
 /**
  * 
@@ -11,7 +13,7 @@ import direction_api.common.Hash;
  */
 
 public class Coordinates implements Serializable {
-
+	
 	/**
 	 * Defined by the Serializable interface.
 	 */
@@ -54,6 +56,40 @@ public class Coordinates implements Serializable {
 		return this.longitude;
 	}
 
+	
+	/*
+	 * This method calculated the distance between two coordinates
+	 * using one of the available distance algorithms.
+	 */
+	public double getDistanceFrom(Coordinates coordinates, DistanceAlgorithm distance_algorithm) {
+		
+		double abs_latitude_distance  =
+				Math.abs(this.getLatitude() - coordinates.getLatitude());
+		double abs_longitude_distance =
+				Math.abs(this.getLongitude() - coordinates.getLongitude());
+		
+		switch(distance_algorithm) {
+		case MANHATTAN_DISTNACE:
+			return abs_latitude_distance + abs_longitude_distance;
+		case CHEBYSHEV_DISTANCE:
+			return Math.max(abs_latitude_distance, abs_longitude_distance);
+		case EUCLIDEAN_DISTANCE:
+			return Math.sqrt(
+					Math.pow(abs_latitude_distance, 2) +
+					Math.pow(abs_longitude_distance, 2));
+		case SQUARED_EUCLIDIAN_DITANCE:
+		default:
+			return Math.abs(
+					Math.pow(abs_latitude_distance, 2) +
+					Math.pow(abs_longitude_distance, 2));
+		}
+		
+	}
+	
+	public double getDistanceFrom(Coordinates coordinates) {
+		return this.getDistanceFrom(coordinates, Constants.default_distance_algorithm);
+	}
+	
 	/*
 	 * Return the position in LatLong format.
 	 * (non-Javadoc)

@@ -42,4 +42,12 @@ public class SocketInformation implements Serializable {
 		return this.host;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.host + ":" + this.port;
+	}
 }

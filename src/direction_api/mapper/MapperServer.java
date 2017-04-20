@@ -6,12 +6,13 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
-import java.rmi.UnexpectedException;
 
+import direction_api.common.Constants;
 import direction_api.common.Server;
 import direction_api.common.structures.Coordinates;
 import direction_api.common.structures.Query;
-import direction_api.common.structures.RoutesList;
+import direction_api.common.structures.Route;
+import direction_api.common.structures.QueryResults;
 import direction_api.common.structures.SocketInformation;
 
 /**
@@ -46,11 +47,10 @@ public class MapperServer extends Server {
 	@Override
 	protected void task() throws IOException {
 		
-		MapperClientReducerThread thread;
+		MapperToReducerClient thread;
 		boolean completed = true;
 		
 		try {
-			
 			
 			/*
 			 * First we retrieve from the master the query, its unique ID and the
@@ -62,23 +62,41 @@ public class MapperServer extends Server {
 			SocketInformation reducer_socket = this.readObject(
 					this.in.readObject(), SocketInformation.class);
 			
+			if (Constants.debugging) {
+				System.out.println("Mapper(S)> connection_id: " + id);
+				System.out.println("Mapper(S)> query: " + query.toString());
+				System.out.println("Mapper(S)> after() = " + reducer_socket.toString());
+			}
 			
 			/*
 			 * We then search the database based on the received query an if
 			 * a match is found we sent the results to the reducer.
 			 */
-			RoutesList routes;
+			QueryResults results;
 			synchronized (this.database) {
-				routes = this.database.searchRoute(query);
+				results = this.database.searchRoute(query);
 			}
 			
-			if (routes.isEmpty()) {
+			if (Constants.debugging) {
+				System.out.println("Mapper(S)> database_results: " + (!results.getResults().isEmpty()));
+			}
+			
+			if (results.getResults().isEmpty()) {
+				
+				if (Constants.debugging) {
+					System.out.println("Mapper(S)> get(google_api)");
+				}
 				
 				/*
 				 * If no results were found in the database then we should try to
 				 * retrieve an available route directly from the Google'w API.
 				 */
-				String route = getRouteFromAPI(query);
+				Route route = getRouteFromAPI(query);
+				
+				if (Constants.debugging) {
+					System.out.println("Mapper(S)> route: " + route.toString());
+					System.out.println("Mapper(S)> update_database()");
+				}
 				
 				synchronized (this.database) {
 					
@@ -87,8 +105,8 @@ public class MapperServer extends Server {
 					 * already been informed from another thread. So we should perform another
 					 * search after we add our own result to the database.
 					 */
-					this.database.insertRoute(query, route);
-					routes = this.database.searchRoute(query);
+					this.database.insertRoute(route);
+					results = this.database.searchRoute(query);
 					
 				}
 				
@@ -99,7 +117,12 @@ public class MapperServer extends Server {
 			 * So we instantiate a client thread to pass our results to the reducer and
 			 * we wait for its response.
 			 */
-			thread = new MapperClientReducerThread(reducer_socket, id, routes);
+			
+			if (Constants.debugging) {
+				System.out.println("Mapper(S)> connect(after())");
+			}
+			
+			thread = new MapperToReducerClient(reducer_socket, id, results);
 			thread.start();
 			
 			while (!thread.isCompleted()) {
@@ -122,6 +145,11 @@ public class MapperServer extends Server {
 			 * Finally we should inform the master if it is possible to retrieve
 			 * its results from the reducer.
 			 */
+			
+			if (Constants.debugging) {
+				System.out.println("Mapper(S)> return(" + completed + ")");
+			}
+			
 			this.out.writeBoolean(completed);
 			this.out.flush();
 			
@@ -129,7 +157,7 @@ public class MapperServer extends Server {
 		
 	}
 	
-	protected String getRouteFromAPI(Query query) {
+	protected Route getRouteFromAPI(Query query) {
 		// TODO: Create a serialized JSON object to store in the database.
 		
 		Coordinates source      = query.getSource();
@@ -167,24 +195,8 @@ public class MapperServer extends Server {
 			ex.printStackTrace(); // TODO: Should check this later on.
 		}
 		
-		return route;
+		return new Route(query, route);
 		
 	}
 
-	/**
-	 * Implements a safe cast for the remote objects and throw an
-	 * exception if the cast is not possible.
-	 * @param object
-	 * @param object_class
-	 * @return
-	 * @throws UnexpectedException
-	 */
-	private <E> E readObject(Object object, Class<E> object_class) throws UnexpectedException {
-		if (object_class.isInstance(object)) {
-			return object_class.cast(object);
-		}
-		else {
-			throw new UnexpectedException("Unexpected type of object.");
-		}
-	}
 }

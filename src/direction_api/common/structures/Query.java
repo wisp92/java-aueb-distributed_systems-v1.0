@@ -2,6 +2,8 @@ package direction_api.common.structures;
 
 import java.io.Serializable;
 
+import direction_api.common.Constants;
+import direction_api.common.Constants.DistanceAlgorithm;
 import direction_api.common.Hash;
 
 /**
@@ -39,6 +41,19 @@ public class Query implements Serializable {
 	
 	public Coordinates getDestination() {
 		return this.destination;
+	}
+	
+	/*
+	 * Calculates the total distance of two queries as the sum of the
+	 * distances of their source and destination coordinates.
+	 */
+	public double getDistanceFrom(Query query, DistanceAlgorithm distance_algorithm) {
+		return this.getDestination().getDistanceFrom(query.getDestination(), distance_algorithm) +
+				this.getSource().getDistanceFrom(query.getSource(), distance_algorithm);
+	}
+	
+	public double getDistanceFrom(Query query) {
+		return this.getDistanceFrom(query, Constants.default_distance_algorithm);
 	}
 	
 	/*
@@ -90,6 +105,16 @@ public class Query implements Serializable {
 	public String getSHA1() {
 		return Hash.getHash(this.getSource().toString() +
 				this.getDestination().toString(), "SHA-1");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "(" + this.getSource().toString() + ") --> (" +
+				this.getDestination().toString() + ")"; 
 	}
 	
 }

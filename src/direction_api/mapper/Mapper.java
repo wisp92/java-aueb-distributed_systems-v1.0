@@ -5,20 +5,18 @@ import java.net.Socket;
 
 import direction_api.common.ServerManager;
 import direction_api.common.Configuration;
+import direction_api.common.Constants;
 import direction_api.common.Server;
 
 /**
- * 
  * @author p3100161, p3130029
  *
- */
-
-/*
  * Creates a Mapper object as direct implementation of ServerManager object.
  * A Mapper object should also initialize the central database that each of
  * its threads is going to search first in order to find a the possible route
  * for the query.
  */
+
 public class Mapper extends ServerManager {
 
 	public static final String default_database_name  = "mapper.sqlite3";
@@ -32,12 +30,9 @@ public class Mapper extends ServerManager {
 	private final String google_api_key;
 	
 	public Mapper(String google_api_key) {
-		super();
+		super(Mapper.class.getResource(default_conf_file).getPath());
 		
-		if (this.database instanceof MapperDatabase) {
-			this.setDatabase(default_database_name);
-		}
-		
+		this.setDatabase(default_database_name);
 		this.google_api_key = google_api_key;
 		
 	}
@@ -66,6 +61,23 @@ public class Mapper extends ServerManager {
 	 */
 	protected Server initServerThread(Socket socket) throws IOException {
 		return new MapperServer(socket, this.database, this.google_api_key);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see direction_api.common.ServerManager#start()
+	 */
+	@Override
+	public void start() {
+		
+		if (Constants.debugging) {
+			System.out.println("Mapper> configuration_file: " + this.configuration.getPath());
+			System.out.println("Mapper> server_port: " + this.port);
+			System.out.println("Mapper> start()");
+		}
+		
+		super.start();
+		
 	}
 	
 	public static void main(String args[]) {

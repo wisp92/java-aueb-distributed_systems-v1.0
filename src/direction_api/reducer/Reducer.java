@@ -1,74 +1,67 @@
 package direction_api.reducer;
+
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.URL;
-import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.net.Socket;
 
-import direction_api.common.Configuration;
-import direction_api.common.structures.RoutesList;
+import direction_api.common.structures.QueryResults;
+import direction_api.common.ServerManager;
+import direction_api.common.Constants;
+import direction_api.common.Server;
 
-public class Reducer {
+/**
+ * @author p3100161, p3130029
+ *
+ * Creates a Reducer object as direct implementation of ServerManager object.
+ * A Reducer object keeps a central HashMap that all the ReducerServer object's
+ * should access to store and retrieve the results of the queries.
+ */
 
-	public static final int default_port = 4322;
-	public static final int default_no_connections = 0;
+public class Reducer extends ServerManager {
+
 	public static final String default_conf_file = "reducer.properties";
 	
-	private Configuration configuration;
-	private ServerSocket server_socket;
+	protected HashMap<Integer, QueryResults> stored;
 	
 	public Reducer() {
-		this(Reducer.class.getResource(default_conf_file));
+		super(Reducer.class.getResource(default_conf_file).getPath());	
 	}
 	
-	public Reducer(URL resource) {
-			
-		this.configuration = new Configuration(resource);
-		
-		this.start(
-				this.configuration.getInt("port", default_port),
-				this.configuration.getInt("number_of_allowed_connections", default_no_connections));
-		
+	/*
+	 * (non-Javadoc)
+	 * @see direction_api.common.ServerManager#initServerThread(java.net.Socket)
+	 */
+	protected Server initServerThread(Socket socket) throws IOException {
+		return new ReducerServer(socket, this.stored);
 	}
 	
-	private void start(int port, int no_connections) {
+	/*
+	 * (non-Javadoc)
+	 * @see direction_api.common.ServerManager#start()
+	 */
+	@Override
+	public void start() {
 		
-		ArrayDeque<ReducerServerThread> threads = new ArrayDeque<ReducerServerThread>();
-		HashMap<Integer, RoutesList> stored_routes = new HashMap<Integer, RoutesList>();
+		/*
+		 * The hashmap should be initialized every time the server starts.
+		 */
+		this.stored = new HashMap<Integer, QueryResults>();
 		
-		try {
-			
-			this.server_socket = new ServerSocket(port, no_connections);
-			
-			while (true) {
-				
-				ReducerServerThread thread = new ReducerServerThread(
-						this.server_socket.accept(), stored_routes);
-				thread.start();
-				threads.addLast(thread);
-				
-			}
-			
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			
-			try {
-				
-				if (!this.server_socket.isClosed()) {
-					this.server_socket.close();
-				}
-				
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-			
+		if (Constants.debugging) {
+			System.out.println("Reducer> configuration_file: " + this.configuration.getPath());
+			System.out.println("Reducer> server_port: " + this.port);
+			System.out.println("Reducer> start()");
 		}
 		
+		super.start();
+		
 	}
-
+	
 	public static void main(String args[]) {
-		new Reducer();
+		
+		Reducer reducer = new Reducer();
+		reducer.start();	
+		
 	}
 	
 }

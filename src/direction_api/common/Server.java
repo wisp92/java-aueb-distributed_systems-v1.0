@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.rmi.UnexpectedException;
 
 /**
- * 
  * @author p3100161, p3130029
  *
+ * Creates a Server object responsible for serving a
+ * ClientThread object trying to communicate with the local host.
  */
 
 /*
@@ -137,6 +139,24 @@ public abstract class Server extends Thread implements Closeable {
 			
 		}
 	
+	}
+	
+	/**
+	 * Implements a safe cast for the remote objects and throw an
+	 * exception if the cast is not possible.
+	 * @param object
+	 * @param object_class
+	 * @return
+	 * @throws UnexpectedException
+	 */
+	protected <E> E readObject(Object object, Class<E> object_class) throws UnexpectedException {
+		// TODO: Add to a superclass.
+		if (object_class.isInstance(object)) {
+			return object_class.cast(object);
+		}
+		else {
+			throw new UnexpectedException("Unexpected type of object.");
+		}
 	}
 	
 }

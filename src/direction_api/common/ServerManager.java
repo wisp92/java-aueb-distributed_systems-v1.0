@@ -3,7 +3,6 @@ package direction_api.common;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.ArrayDeque;
 
 import direction_api.common.Configuration;
@@ -21,7 +20,6 @@ import direction_api.common.Configuration;
 
 public abstract class ServerManager {
 
-	public static final String default_conf_file = "";
 	/*
 	 * If default_port is set as 0 then a random port is going
 	 * to be used to create the server socket in case no port
@@ -59,16 +57,6 @@ public abstract class ServerManager {
 		
 		this.setPort(default_port);
 		this.setNumberOfAllowedConnections(default_no_connections);
-		
-		/*
-		 * The default configuration file's path should be relative
-		 * to the final class.
-		 */
-		URL resource = this.getClass().getResource(default_conf_file);
-		
-		if (resource instanceof URL) {
-			this.loadConfigurationFile(resource.getPath());
-		}
 
 	}
 	
@@ -79,10 +67,8 @@ public abstract class ServerManager {
 	 */
 	public ServerManager(String path) {
 		this();
-		
-		if (this.configuration.getPath() != path) {
-			this.loadConfigurationFile(path);
-		}
+
+		this.loadConfigurationFile(path);
 		
 	}
 	
@@ -94,6 +80,10 @@ public abstract class ServerManager {
 		this.setNumberOfAllowedConnections(
 				this.configuration.getInt("number_of_allowed_connections", this.no_connections));
 		
+	}
+	
+	public int getPort() {
+		return this.port;
 	}
 	
 	public void setPort(int port) {
