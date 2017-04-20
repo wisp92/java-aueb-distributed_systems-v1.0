@@ -29,7 +29,6 @@ public class MapperDatabase implements Closeable {
 	 * Used to calculate the area of search for a relevant route
 	 * during the execution of a query.
 	 */
-	//public static final int default_no_digits_truncate = 2;
 	
 	private final String database_name;
 	protected Connection connection;
@@ -48,7 +47,7 @@ public class MapperDatabase implements Closeable {
 			this.initialize();
 			
 		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 	}	
@@ -66,7 +65,7 @@ public class MapperDatabase implements Closeable {
 			this.connection.setAutoCommit(false);
 			
 		} catch (SQLException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		/*
@@ -104,7 +103,7 @@ public class MapperDatabase implements Closeable {
 			this.connection.commit();
 			
 		} catch (SQLException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 	}
@@ -155,7 +154,7 @@ public class MapperDatabase implements Closeable {
 			connection.commit();
 			
 		} catch (SQLException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return new QueryResults(query, routes);
@@ -200,7 +199,7 @@ public class MapperDatabase implements Closeable {
 			connection.commit();
 			
 		} catch (SQLException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return inserted;
@@ -221,7 +220,7 @@ public class MapperDatabase implements Closeable {
 			}
 			
 		} catch (SQLException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 
 	}

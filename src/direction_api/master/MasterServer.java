@@ -78,7 +78,7 @@ public class MasterServer extends Server {
 			success = thread.isSuccess();
 			
 		} catch (IOException | InterruptedException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return success;
@@ -109,7 +109,7 @@ public class MasterServer extends Server {
 			route = thread.getRoute();
 			
 		} catch (IOException | InterruptedException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return route;
@@ -243,7 +243,7 @@ public class MasterServer extends Server {
 			this.out.flush();
 			
 		} catch (IOException | ClassNotFoundException | InterruptedException ex) {
-			ex.printStackTrace();			
+			ex.printStackTrace(); // TODO: Should be checked in the future.		
 		}
 		
 	}

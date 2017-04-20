@@ -143,7 +143,7 @@ public class ReducerServer extends Server {
 			
 			
 		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 			
 	}

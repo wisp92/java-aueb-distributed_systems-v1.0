@@ -7,9 +7,7 @@ import direction_api.common.Constants.DistanceAlgorithm;
 import direction_api.common.Hash;
 
 /**
- * 
  * @author p3100161, p3130029
- *
  */
 
 public class Query implements Serializable {

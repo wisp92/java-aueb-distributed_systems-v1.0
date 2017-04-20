@@ -9,6 +9,12 @@ import direction_api.common.Constants.MsgType;
 import direction_api.common.structures.Route;
 import direction_api.common.structures.SocketInformation;
 
+/**
+ * @author p3100161, p3130029
+ * 
+ * Creates a Client object responsible for retrieving the results
+ * of the reducer.
+ */
 public class MasterToReducerClient extends Client {
 	
 	/*
@@ -74,7 +80,7 @@ public class MasterToReducerClient extends Client {
 			}
 			
 		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();			
+			ex.printStackTrace(); // TODO: Should be checked in the future.	
 		}
 		
 	}

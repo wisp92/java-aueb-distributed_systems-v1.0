@@ -13,6 +13,13 @@ import direction_api.master.Master;
 import direction_api.mobile.MobileMasterClient;
 import direction_api.reducer.Reducer;
 
+/**
+ * @author p3100161, p3130029
+ *
+ * Creates a object that runs at checks the functionality of the system
+ * distributes on a local machine.
+ */
+
 public class TestLocalSystem {
 
 	public static void main (String[] args) {
@@ -42,7 +49,7 @@ public class TestLocalSystem {
 			thread.start();
 			
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 	}

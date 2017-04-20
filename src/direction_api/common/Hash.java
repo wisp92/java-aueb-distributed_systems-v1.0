@@ -5,9 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * 
  * @author p3100161, p3130029
- *
  */
 
 public class Hash {
@@ -48,7 +46,7 @@ public class Hash {
 	    	 * since getBytes() uses UTF-8 format.
 	    	 */
 	    	
-	    	ex.printStackTrace();
+	    	ex.printStackTrace(); // TODO: Should be checked in the future.
 	    }
 	    
 	    return buffer.toString();

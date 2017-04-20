@@ -8,12 +8,8 @@ import java.util.ArrayDeque;
 import direction_api.common.Configuration;
 
 /**
- * 
  * @author p3100161, p3130029
  *
- */
-
-/*
  * Creates an abstract ServerManager object that acts as a
  * base for the actual servers eg. mappers.
  */
@@ -120,7 +116,7 @@ public abstract class ServerManager {
 			}
 			
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		} finally {
 			
 			try {
@@ -130,7 +126,7 @@ public abstract class ServerManager {
 				}
 				
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				ex.printStackTrace(); // TODO: Should be checked in the future.
 			}
 			
 		}

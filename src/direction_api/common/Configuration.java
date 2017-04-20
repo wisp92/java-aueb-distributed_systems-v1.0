@@ -7,14 +7,14 @@ import java.net.URL;
 import java.util.Properties;
 
 /**
- * 
  * @author p3100161, p3130029
- *
+ * 
+ * Creates a Configuration object for handling the communication
+ * with a properties file.
  */
 
 /*
- * Creates a Configuration object for handling the communication
- * with a properties file.
+ * 
  */
 public class Configuration extends Properties {
 	
@@ -40,7 +40,7 @@ public class Configuration extends Properties {
 			this.load(in);	
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 	}
@@ -60,7 +60,7 @@ public class Configuration extends Properties {
 			this.load(in);	
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 	}

@@ -3,7 +3,12 @@ package direction_api.common;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/*
+/**
+ * @author p3100161, p3130029
+ *
+ * @param <K>
+ * @param <V>
+ * 
  * Creates an LRU cache based on a LinkedHashMap object.
  */
 

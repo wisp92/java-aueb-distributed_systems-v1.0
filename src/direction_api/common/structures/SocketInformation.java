@@ -3,16 +3,13 @@ package direction_api.common.structures;
 import java.io.Serializable;
 
 /**
- * 
  * @author p3100161, p3130029
- *
- */
-
-/* 
+ * 
  * Creates a Socket object that keeps the necessary information to
  * connect to a corresponding socket.
  * The object does not actually act as real socket.
  */
+
 public class SocketInformation implements Serializable {
 
 	/**

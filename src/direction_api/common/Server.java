@@ -1,11 +1,9 @@
 package direction_api.common;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.rmi.UnexpectedException;
 
 /**
  * @author p3100161, p3130029
@@ -14,24 +12,10 @@ import java.rmi.UnexpectedException;
  * ClientThread object trying to communicate with the local host.
  */
 
-/*
- * Creates a Server object responsible for serving a
- * ClientThread object trying to communicate with the local host.
- */
-public abstract class Server extends Thread implements Closeable {
+public abstract class Server extends Connection {
 	
 	protected final ObjectInputStream in;
 	protected final ObjectOutputStream out;
-	protected final Socket socket;
-	private boolean is_completed = false;
-	
-	/**
-	 * Implements the actual communication between the sockets.
-	 * Because all communication happens between the streams an
-	 * IOException is always possible.
-	 * @throws IOException
-	 */
-	protected abstract void task() throws IOException; // TODO: Should be added in a superclass.
 	
 	/**
 	 * A Server object can be initialized by providing a temporary
@@ -44,8 +28,7 @@ public abstract class Server extends Thread implements Closeable {
 	 * @throws IOException
 	 */
 	public Server(Socket socket) throws IOException {
-		
-		this.socket = socket;
+		super(socket);
 		
 		/*
 		 * As a convention ObjectInputStream should be initialized before
@@ -56,40 +39,15 @@ public abstract class Server extends Thread implements Closeable {
 		this.out = new ObjectOutputStream(this.socket.getOutputStream());
 		
 	}
-
-	/*
-	 * Should be called when the thread finished without an
-	 * interruption.
-	 */
-	protected final void setCompleted() { // TODO: Should be added in a superclass.
-		this.is_completed = true;
-	}
-	
-	public boolean isCompleted() { // TODO: Should be added in a superclass.
-		return this.is_completed;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Thread#interrupt()
-	 */
-	@Override
-	public void interrupt() { // TODO: Should be added in a superclass.
-		
-		super.interrupt();
-		/*
-		 * We should make sure to call the close() method
-		 * after the interruption.
-		 */
-		this.close();
-		
-	}
 	
 	/*
 	 * We should make sure that both streams and the temporary
 	 * socket get closed after execution.
+	 * (non-Javadoc)
+	 * @see direction_api.common.Connection#close()
 	 */
-	public void close() { // TODO: Should override a superclass' method.
+	@Override
+	public void close() {
 		
 		try {
 			
@@ -98,7 +56,7 @@ public abstract class Server extends Thread implements Closeable {
 			}
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		try {
@@ -108,55 +66,11 @@ public abstract class Server extends Thread implements Closeable {
 			}
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
-		try {
-			
-			if (!this.socket.isClosed()) {
-				this.socket.close();
-			}
-			
-		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked later on.
-		}
+		super.close();
 		
 	}	
-	
-	public void run() { // TODO: Should be added in a superclass.
-		
-		try {
-			
-			this.task();
-			
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			
-			this.setCompleted();
-			
-			this.close();
-			
-		}
-	
-	}
-	
-	/**
-	 * Implements a safe cast for the remote objects and throw an
-	 * exception if the cast is not possible.
-	 * @param object
-	 * @param object_class
-	 * @return
-	 * @throws UnexpectedException
-	 */
-	protected <E> E readObject(Object object, Class<E> object_class) throws UnexpectedException {
-		// TODO: Add to a superclass.
-		if (object_class.isInstance(object)) {
-			return object_class.cast(object);
-		}
-		else {
-			throw new UnexpectedException("Unexpected type of object.");
-		}
-	}
 	
 }

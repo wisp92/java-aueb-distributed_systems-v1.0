@@ -7,9 +7,7 @@ import direction_api.common.Constants;
 import direction_api.common.Constants.DistanceAlgorithm;
 
 /**
- * 
  * @author p3100161, p3130029
- *
  */
 
 public class Coordinates implements Serializable {

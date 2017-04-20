@@ -16,9 +16,10 @@ import direction_api.common.structures.QueryResults;
 import direction_api.common.structures.SocketInformation;
 
 /**
- * 
  * @author p3100161, p3130029
- *
+ * 
+ * Creates a MapperServer object responsible to do the mapping
+ * between the query and the matching routes.
  */
 
 /*
@@ -137,7 +138,7 @@ public class MapperServer extends Server {
 			 */
 			completed = false;
 			
-			ex.printStackTrace(); // TODO: Should check this later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 			
 		} finally {
 			
@@ -192,7 +193,7 @@ public class MapperServer extends Server {
 			route = builder.toString();
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should check this later on.
+			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return new Route(query, route);
