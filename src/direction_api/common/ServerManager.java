@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.ArrayDeque;
 
 import direction_api.common.Configuration;
@@ -57,6 +58,12 @@ public abstract class ServerManager {
 		this.setPort(default_port);
 		this.setNumberOfAllowedConnections(default_no_connections);
 
+		/*
+		 * To prevent memory leaks we should keep track of the running
+		 * threads in case we need to interrupt them.
+		 */
+		this.threads = new ArrayDeque<Server>();
+		
 	}
 	
 	/**
@@ -69,11 +76,14 @@ public abstract class ServerManager {
 
 		this.loadConfigurationFile(path);
 		
-		/*
-		 * To prevent memory leaks we should keep track of the running
-		 * threads in case we need to interrupt them.
-		 */
-		this.threads = new ArrayDeque<Server>();
+	}
+	
+	public ServerManager(URL resource) {
+		this();
+		
+		if (resource != null) {
+			this.loadConfigurationFile(resource.getPath());
+		}
 		
 	}
 	
@@ -84,6 +94,17 @@ public abstract class ServerManager {
 		this.setPort(this.configuration.getInt("port", this.port));
 		this.setNumberOfAllowedConnections(
 				this.configuration.getInt("number_of_allowed_connections", this.no_connections));
+		
+	}
+	
+	public String getConfigurationPath() {
+		
+		if (this.configuration != null) {
+			return this.configuration.getPath();
+		}
+		else {
+			return null;
+		}
 		
 	}
 	

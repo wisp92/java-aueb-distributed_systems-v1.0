@@ -1,5 +1,6 @@
 package direction_api.master;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.net.Socket;
@@ -57,10 +58,14 @@ public class Master extends ServerManager {
 	protected LRUCache<Query, Route> cached_results;
 	
 	public Master() {
-		super(Master.class.getResource(default_conf_file).getPath());
+		super(Master.class.getResource(default_conf_file));
 		
 		if (this.no_connections < default_no_connections) {
 			this.setNumberOfAllowedConnections(default_no_connections);
+		}
+		
+		if (this.mapper_sockets == null) {
+			this.mapper_sockets = new ArrayList<SocketInformation>();
 		}
 		
 	}
@@ -181,7 +186,9 @@ public class Master extends ServerManager {
 		this.cached_results      = new LRUCache<Query, Route>(this.no_connections);
 		
 		if (Constants.debugging) {
-			System.out.println("Master> configuration_file: " + this.configuration.getPath());
+			if (this.configuration != null) {
+				System.out.println("Master> configuration_file: " + this.configuration.getPath());
+			}
 			System.out.println("Master> server_port: " + this.port);
 			System.out.println("Master> no_mappers: " + this.mapper_sockets.size());
 			System.out.println("Master> cache_capacity: " + this.cached_results.max_capacity);
@@ -194,7 +201,22 @@ public class Master extends ServerManager {
 	
 	public static void main(String args[]) {
 		
+		String default_conf_file = "master.properties";
+		
 		Master master = new Master();
+		
+		if (master.getConfigurationPath() == null) {
+			
+			if ((new File(default_conf_file).exists())) {
+				master.loadConfigurationFile(default_conf_file);
+			}
+			else {
+				System.out.println("Notice: No configuration file <" +
+						default_conf_file + "> was loaded.");
+			}
+			
+		}
+		
 		master.start();	
 		
 	}

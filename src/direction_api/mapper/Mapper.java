@@ -1,5 +1,6 @@
 package direction_api.mapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -30,7 +31,7 @@ public class Mapper extends ServerManager {
 	private final String google_api_key;
 	
 	public Mapper(String google_api_key) {
-		super(Mapper.class.getResource(default_conf_file).getPath());
+		super(Mapper.class.getResource(default_conf_file));
 		
 		this.setDatabase(default_database_name);
 		this.google_api_key = google_api_key;
@@ -71,7 +72,7 @@ public class Mapper extends ServerManager {
 	public void start() {
 		
 		if (Constants.debugging) {
-			System.out.println("Mapper> configuration_file: " + this.configuration.getPath());
+			System.out.println("Mapper> configuration_file: " + this.getConfigurationPath());
 			System.out.println("Mapper> server_port: " + this.port);
 			System.out.println("Mapper> start()");
 		}
@@ -82,7 +83,8 @@ public class Mapper extends ServerManager {
 	
 	public static void main(String args[]) {
 		
-		String google_api_key = null;
+		String google_api_key    = null;
+		String default_conf_file = "mapper.properties";
 		
 		/*
 		 * We try to find the Google API key first in the program's
@@ -92,18 +94,38 @@ public class Mapper extends ServerManager {
 			google_api_key = args[0];
 		}
 		else {
-			google_api_key = (new Configuration(
-					"google_api_key")).getString("google_api_key");
+			
+			if ((new File("google_api_key").exists())) {
+				google_api_key = (new Configuration(
+						"google_api_key")).getString("google_api_key");
+			}
+			
 		}
 		
 		/*
 		 * The server can start only by specifying the Google API key.
 		 */
-		if (google_api_key instanceof String) {
+		if (google_api_key != null) {
 			
 			Mapper mapper = new Mapper(google_api_key);
+			
+			if (mapper.getConfigurationPath() == null) {
+				
+				if ((new File(default_conf_file).exists())) {
+					mapper.loadConfigurationFile(default_conf_file);
+				}
+				else {
+					System.out.println("Notice: No configuration file <" +
+							default_conf_file + "> was loaded.");
+				}
+				
+			}
+			
 			mapper.start();
 			
+		}
+		else {
+			System.out.println("Error: The Google API key is required.");
 		}
 		
 	}

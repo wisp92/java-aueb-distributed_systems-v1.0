@@ -1,5 +1,6 @@
 package direction_api.reducer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.net.Socket;
@@ -24,7 +25,7 @@ public class Reducer extends ServerManager {
 	protected HashMap<Integer, QueryResults> stored;
 	
 	public Reducer() {
-		super(Reducer.class.getResource(default_conf_file).getPath());	
+		super(Reducer.class.getResource(default_conf_file));	
 	}
 	
 	/*
@@ -48,7 +49,9 @@ public class Reducer extends ServerManager {
 		this.stored = new HashMap<Integer, QueryResults>();
 		
 		if (Constants.debugging) {
-			System.out.println("Reducer> configuration_file: " + this.configuration.getPath());
+			if (this.configuration != null) {
+				System.out.println("Reducer> configuration_file: " + this.configuration.getPath());
+			}
 			System.out.println("Reducer> server_port: " + this.port);
 			System.out.println("Reducer> start()");
 		}
@@ -59,7 +62,22 @@ public class Reducer extends ServerManager {
 	
 	public static void main(String args[]) {
 		
+		String default_conf_file = "reducer.properties";
+		
 		Reducer reducer = new Reducer();
+		
+		if (reducer.getConfigurationPath() == null) {
+			
+			if ((new File(default_conf_file).exists())) {
+				reducer.loadConfigurationFile(default_conf_file);
+			}
+			else {
+				System.out.println("Notice: No configuration file <" +
+						default_conf_file + "> was loaded.");
+			}
+			
+		}
+		
 		reducer.start();	
 		
 	}
