@@ -16,11 +16,11 @@ import direction_api.common.structures.SocketInformation;
  * with the master server.
  */
 
-public class MobileMasterClient extends Client {
+public class MobileToMasterClient extends Client {
 	
 	protected final Query query;
 	
-	public MobileMasterClient(SocketInformation socket, Query query)
+	public MobileToMasterClient(SocketInformation socket, Query query)
 			throws IOException, UnknownHostException {
 		super(socket);
 		
@@ -58,7 +58,7 @@ public class MobileMasterClient extends Client {
 	
 	public static void main(String args[]) {
 		
-		MobileMasterClient thread;
+		MobileToMasterClient thread;
 		
 		String host = "127.0.0.1";
 		int    port = 4500;
@@ -69,7 +69,7 @@ public class MobileMasterClient extends Client {
 				System.out.println("User> connect() " + host + ":" + port);
 			}
 			
-			thread = new MobileMasterClient(
+			thread = new MobileToMasterClient(
 					new SocketInformation(host, port), new Query(
 							new Coordinates(37.983810, 23.727539),
 							new Coordinates(38.012097, 23.772572)));

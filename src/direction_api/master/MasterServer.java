@@ -51,24 +51,23 @@ public class MasterServer extends Server {
 	protected boolean communicateWithMapper(
 			SocketInformation socket,
 			Query query,
-			SocketInformation reducer_socket) {
-		
-		MasterToMapperClient thread;
+			SocketInformation reducer_socket
+			)throws IOException, InterruptedException {
 		
 		boolean success = false;
 		
-		try {
+		/*
+		 * We create a client thread to communicate with the selected
+		 * mapper and wait for it to give some results.
+		 */
+		
+		try (MasterToMapperClient thread = new MasterToMapperClient(
+				socket, this.id, query, reducer_socket)) {
 			
-			/*
-			 * We create a client thread to communicate with the selected
-			 * mapper and wait for it to give some results.
-			 */
-			thread = new MasterToMapperClient(
-					socket, this.id, query, reducer_socket);
 			thread.start();
 			
 			while (!thread.isCompleted()) {
-				sleep(Constants.max_sleep_time);
+				Thread.sleep(Constants.max_sleep_time);
 			}
 			
 			/*
@@ -77,39 +76,33 @@ public class MasterServer extends Server {
 			 */
 			success = thread.isSuccess();
 			
-		} catch (IOException | InterruptedException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return success;
 		
 	}
 	
-	protected Route communicateWithReducer(SocketInformation socket) {
-		
-		MasterToReducerClient thread;
+	protected Route communicateWithReducer(SocketInformation socket)
+			throws IOException, InterruptedException {
 		
 		Route route = null;
 		
-		try {
+		/*
+		 * If all went well so far then we create a client thread to
+		 * communicate with the reducer and retrieve the route.
+		 * If something goes wrong we are going to catch an IOException
+		 * and the route is going to be null.
+		 */
+		try (MasterToReducerClient thread = new MasterToReducerClient(socket, this.id)) {
 			
-			/*
-			 * If all ent well so far then we create a client thread to
-			 * communicate with the reducer and retrieve the route.
-			 * If something goes wrong we are going to catch an IOException
-			 * and the route is going to be null.
-			 */
-			thread = new MasterToReducerClient(socket, this.id);
 			thread.start();
 			
 			while (!thread.isCompleted()) {
-				sleep(Constants.max_sleep_time);
+				Thread.sleep(Constants.max_sleep_time);
 			}
 			
 			route = thread.getRoute();
 			
-		} catch (IOException | InterruptedException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.
 		}
 		
 		return route;
@@ -121,7 +114,7 @@ public class MasterServer extends Server {
 	 * @see direction_api.common.Server#task()
 	 */
 	@Override
-	protected void task() throws IOException {
+	protected void task() throws IOException, InterruptedException {
 		
 		Route route = null;
 		
@@ -135,7 +128,7 @@ public class MasterServer extends Server {
 			Query query = this.readObject(this.in.readObject(), Query.class);
 			
 			if (Constants.debugging) {
-				System.out.println("Master(S)> query: " + query.toString());
+				System.out.println("Master(S):" + this.id + "> query: " + query.toString());
 			}
 			
 			synchronized (this.cached_results) {
@@ -147,7 +140,8 @@ public class MasterServer extends Server {
 			}
 			
 			if (Constants.debugging) {
-				System.out.println("Master(S)> cache_results: " + (route instanceof Route));
+				System.out.println("Master(S):" + this.id + "> cache_results: " +
+						(route instanceof Route));
 			}
 			
 			if (!(route instanceof Route)) {
@@ -168,7 +162,7 @@ public class MasterServer extends Server {
 					}
 					
 					if (this.id < 0) {
-						sleep(Constants.max_sleep_time);
+						Thread.sleep(Constants.max_sleep_time);
 					}
 					
 				}
@@ -182,13 +176,13 @@ public class MasterServer extends Server {
 				 * mapper's id.
 				 */
 				
-				int selected_mapper = query.hashCode() % this.mapper_sockets.size();
+				int selected_mapper = Math.abs(query.hashCode()) % this.mapper_sockets.size();
 				
 				if (Constants.debugging) {
-					System.out.println("Master(S)> selected_mapper: " +
+					System.out.println("Master(S):" + this.id + "> selected_mapper: " +
 							this.mapper_sockets.get(selected_mapper).toString() +
 							"(" + selected_mapper + ")");
-					System.out.println("Master(S)> connect(selected_mapper)");
+					System.out.println("Master(S):" + this.id + "> connect(selected_mapper)");
 				}
 				
 				if (this.communicateWithMapper(
@@ -201,13 +195,13 @@ public class MasterServer extends Server {
 					 */
 					
 					if (Constants.debugging) {
-						System.out.println("Master(S)> connect(reducer_socket)");
+						System.out.println("Master(S):" + this.id + "> connect(reducer_socket)");
 					}
 					
 					route = this.communicateWithReducer(reducer_socket);
 					
 					if (Constants.debugging) {
-						System.out.println("Master(S)> route: " +
+						System.out.println("Master(S):" + this.id + "> route: " +
 								((route instanceof Route) ? route.toString() : route));
 					}
 					
@@ -218,7 +212,7 @@ public class MasterServer extends Server {
 						// TODO: Consider If it is best to do not cache empty results also.
 						
 						if (Constants.debugging) {
-							System.out.println("Master(S)> cache(route)");
+							System.out.println("Master(S):" + this.id + "> cache(route)");
 						}
 						
 						synchronized (this.cached_results) {
@@ -236,14 +230,20 @@ public class MasterServer extends Server {
 			 */
 			
 			if (Constants.debugging) {
-				System.out.println("System(S)> return()");
+				System.out.println("Master(S):" + this.id + "> return()");
 			}
 			
 			this.out.writeObject(route);
 			this.out.flush();
 			
-		} catch (IOException | ClassNotFoundException | InterruptedException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.		
+		} catch (ClassNotFoundException  ex) {
+			
+			ex.printStackTrace();
+			/*
+			 * If an object can't be recognized we stop the execution.
+			 */
+			throw new IOException();
+			
 		}
 		
 	}
@@ -257,7 +257,7 @@ public class MasterServer extends Server {
 		if (this.id >= 0) {
 			
 			if (Constants.debugging) {
-				System.out.println("System(S)> release_id(" + this.id + ")");
+				System.out.println("Master(S)> release_id(" + this.id + ")");
 			}
 			
 			synchronized (this.connections_id_pool) {
@@ -266,6 +266,7 @@ public class MasterServer extends Server {
 				 * pool and have another thread release the id when needed.
 				 */
 				this.connections_id_pool.release(this.id);
+				this.id = -1;
 			}
 			
 		}

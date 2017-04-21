@@ -53,9 +53,10 @@ public class MasterToMapperClient extends Client {
 		
 		if (Constants.debugging) {
 			System.out.println("Master(MC)> connection_id: " + this.id);
-			System.out.println("Master(MC)> query: " + this.query.toString());
-			System.out.println("Master(MC)> after() = " + this.reducer_socket.toString());
-			System.out.println("Master(MC)> send()");
+			System.out.println("Master(MC):" + this.id + "> query: " + this.query.toString());
+			System.out.println("Master(MC):" + this.id + "> after() = " +
+					this.reducer_socket.toString());
+			System.out.println("Master(MC):" + this.id + "> send()");
 		}
 		
 		/*
@@ -80,7 +81,7 @@ public class MasterToMapperClient extends Client {
 		this.success = this.in.readBoolean();
 		
 		if (Constants.debugging) {
-			System.out.println("Master(MC)> return(" + this.success + ")");
+			System.out.println("Master(MC):" + this.id + "> return(" + this.success + ")");
 		}
 		
 	}

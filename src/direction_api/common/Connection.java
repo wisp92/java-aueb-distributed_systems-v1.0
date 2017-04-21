@@ -22,8 +22,9 @@ abstract class Connection extends Thread implements Closeable {
 	 * Because all communication happens between the streams an
 	 * IOException is always possible.
 	 * @throws IOException
+	 * @throws InterruptedException
 	 */
-	protected abstract void task() throws IOException;
+	protected abstract void task() throws IOException, InterruptedException;
 	
 	public Connection(Socket socket) throws IOException {
 		
@@ -50,12 +51,13 @@ abstract class Connection extends Thread implements Closeable {
 	@Override
 	public void interrupt() {
 		
-		super.interrupt();
+		
 		/*
 		 * We should make sure to call the close() method
 		 * after the interruption.
 		 */
 		this.close();
+		super.interrupt();
 		
 	}
 	
@@ -68,11 +70,17 @@ abstract class Connection extends Thread implements Closeable {
 		try {
 			
 			if (!this.socket.isClosed()) {
+				
+				if (Constants.debugging) {
+					System.out.println("Destructor> manual_close(" + this.getClass().getSimpleName() + ")");
+				}
+				
 				this.socket.close();
+				
 			}
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.
+			ex.printStackTrace();
 		}
 		
 	}	
@@ -83,8 +91,19 @@ abstract class Connection extends Thread implements Closeable {
 			
 			this.task();
 			
-		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.
+			if (Constants.debugging) {
+				System.out.println("Destructor> completed(" + this.getClass().getSimpleName() + ")");
+			}
+			
+		} catch (IOException | InterruptedException ex) {
+			
+			if (Constants.debugging) {
+				System.out.println("Destructor> failed(" + this.getClass().getSimpleName() + ")");
+			}
+			
+			ex.printStackTrace();
+			
+			
 		} finally {
 			
 			this.setCompleted();

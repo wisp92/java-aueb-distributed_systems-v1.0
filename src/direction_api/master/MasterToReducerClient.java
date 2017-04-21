@@ -54,7 +54,7 @@ public class MasterToReducerClient extends Client {
 		if (Constants.debugging) {
 			System.out.println("Master(RC)> type() = " + default_type_of_connection.name());
 			System.out.println("Master(RC)> connection_id() = " + this.id);
-			System.out.println("Master(RC)> send()");
+			System.out.println("Master(RC):" + this.id + "> send()");
 		}
 		
 		/*
@@ -74,9 +74,9 @@ public class MasterToReducerClient extends Client {
 			this.route = this.readObject(this.in.readObject(), Route.class);
 		
 			if (Constants.debugging) {
-				System.out.println("Master(RC)> original_query: " + this.route.getQuery().toString());
-				System.out.println("Master(RC)> route: " + this.route.toString());
-				System.out.println("Master(RC)> return()");
+				System.out.println("Master(RC):" + this.id + "> original_query: " + this.route.getQuery().toString());
+				System.out.println("Master(RC):" + this.id + "> route: " + this.route.toString());
+				System.out.println("Master(RC):" + this.id + "> return()");
 			}
 			
 		} catch (ClassNotFoundException ex) {

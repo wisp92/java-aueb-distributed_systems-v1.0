@@ -3,6 +3,7 @@ package direction_api.common;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayDeque;
 
 import direction_api.common.Configuration;
@@ -33,6 +34,8 @@ public abstract class ServerManager {
 	protected ServerSocket  server_socket;
 	protected int           port;
 	protected int           no_connections;
+	
+	private ArrayDeque<Server> threads;
 	
 	/**
 	 * This method should return the actual thread that is going 
@@ -66,6 +69,12 @@ public abstract class ServerManager {
 
 		this.loadConfigurationFile(path);
 		
+		/*
+		 * To prevent memory leaks we should keep track of the running
+		 * threads in case we need to interrupt them.
+		 */
+		this.threads = new ArrayDeque<Server>();
+		
 	}
 	
 	public void loadConfigurationFile(String path) {
@@ -92,12 +101,6 @@ public abstract class ServerManager {
 	
 	public void start() {
 		
-		/*
-		 * To prevent memory leaks we should keep track of the running
-		 * threads in case we need to interrupt them.
-		 */
-		ArrayDeque<Server> threads = new ArrayDeque<Server>();
-		
 		try {
 			
 			/*
@@ -108,27 +111,63 @@ public abstract class ServerManager {
 			
 			while (true) {
 				
-				
 				Server thread = initServerThread(this.server_socket.accept());
+				
+				synchronized (this.threads) {
+					this.threads.addLast(thread);
+				}
+				
 				thread.start();
-				threads.addLast(thread);
+				
+			}
+			
+		} catch (SocketException ex) {
+			
+			if (this.server_socket.isClosed()) {
+				
+				/*
+				 * If the socket was closed we consider the event normal.
+				 */
+				if (Constants.debugging) {
+					System.out.println("Destructor> is_stopped(" +
+							this.getClass().getSimpleName() + ") = " + this.server_socket.isClosed());
+				}
+				
+			}
+			else {
+				ex.printStackTrace();
+			}			
+			
+		} catch (IOException ex) {
+			
+			ex.printStackTrace();
+			
+		} finally {
+			
+			this.close();
+			
+		}
+		
+	}
+	
+	public void close() {
+		
+		try {
+			
+			if (!this.server_socket.isClosed()) {
+				this.server_socket.close();
+			}
+			
+			synchronized (this.threads) {
+				
+				for (Server thread : this.threads) {
+					thread.interrupt();
+				}
 				
 			}
 			
 		} catch (IOException ex) {
 			ex.printStackTrace(); // TODO: Should be checked in the future.
-		} finally {
-			
-			try {
-				
-				if (!this.server_socket.isClosed()) {
-					this.server_socket.close();
-				}
-				
-			} catch (IOException ex) {
-				ex.printStackTrace(); // TODO: Should be checked in the future.
-			}
-			
 		}
 		
 	}

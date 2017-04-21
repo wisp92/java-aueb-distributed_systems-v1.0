@@ -29,12 +29,14 @@ public class ReducerServer extends Server {
 	 * the master's initial connection.
 	 */
 	private final HashMap<Integer, QueryResults> stored_routes;
+	private int id;
 	
 	public ReducerServer(Socket socket, HashMap<Integer, QueryResults> stored_routes)
 			throws IOException {
 		super(socket);
 		
 		this.stored_routes = stored_routes;
+		this.id            = -1;
 	}
 	
 	@Override
@@ -48,11 +50,11 @@ public class ReducerServer extends Server {
 			 * store to or retrieve results from the hashmap.
 			 */
 			MsgType type_of_connection = this.readObject(this.in.readObject(), MsgType.class);
-			int id = this.in.readInt();
+			this.id = this.in.readInt();
 			
 			if (Constants.debugging) {
 				System.out.println("Reducer(S)> type() = " + type_of_connection.name());
-				System.out.println("Reducer(S)> connection_id: " + id);
+				System.out.println("Reducer(S)> connection_id: " + this.id);
 			}
 			
 			QueryResults results = null;
@@ -67,12 +69,12 @@ public class ReducerServer extends Server {
 					results = this.readObject(this.in.readObject(), QueryResults.class);
 					
 					if (Constants.debugging) {
-						System.out.println("Reducer(S)> original_query: " + results.getQuery().toString());
-						System.out.println("Reducer(S)> connection_id: " + id);
+						System.out.println("Reducer(S):" + this.id + "> original_query: " +
+								results.getQuery().toString());
 					}
 					
 					synchronized (this.stored_routes) {
-						stored_routes.put(id, results);
+						stored_routes.put(this.id, results);
 					}
 					
 					/*
@@ -81,7 +83,7 @@ public class ReducerServer extends Server {
 					 */
 					
 					if (Constants.debugging) {
-						System.out.println("Reducer(S)> return()");
+						System.out.println("Reducer(S):" + this.id + "> return()");
 					}
 					
 					this.out.writeBoolean(true);
@@ -91,13 +93,13 @@ public class ReducerServer extends Server {
 					
 				case MSG_GET_ROUTE:
 					
-					synchronized (this.stored_routes) { // TODO: Store to variable first.
+					synchronized (this.stored_routes) {
 						
 						/*
 						 * Under normal execution this condition should always be true.
 						 */
-						if (stored_routes.containsKey(id)) {
-							results = stored_routes.remove(id);
+						if (stored_routes.containsKey(this.id)) {
+							results = stored_routes.remove(this.id);
 						}
 						
 					}
@@ -134,6 +136,11 @@ public class ReducerServer extends Server {
 						}
 					}
 					
+					if (Constants.debugging) {
+						System.out.println("Reducer(S):" + this.id + "> route: " + route.toString());
+						System.out.println("Reducer(S):" + this.id + "> return(route)");
+					}
+					
 					out.writeObject(route);
 					out.flush();
 					
@@ -143,7 +150,13 @@ public class ReducerServer extends Server {
 			
 			
 		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.
+			
+			ex.printStackTrace();
+			/*
+			 * If an object can't be recognized we stop the execution.
+			 */
+			throw new IOException();
+			
 		}
 			
 	}

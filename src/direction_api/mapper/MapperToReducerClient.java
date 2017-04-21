@@ -47,9 +47,9 @@ public class MapperToReducerClient extends Client {
 		if (Constants.debugging) {
 			System.out.println("Mapper(RC)> type() = " + default_type_of_connection.name());
 			System.out.println("Mapper(RC)> connection_id: " + this.id);
-			System.out.println("Mapper(RC)> original_query: " + this.results.getQuery().toString());
-			System.out.println("Mapper(RC)> no_results: " + this.results.getResults().size());
-			System.out.println("Mapper(RC)> send()");
+			System.out.println("Mapper(RC):" + this.id + "> original_query: " + this.results.getQuery().toString());
+			System.out.println("Mapper(RC):" + this.id + "> no_results: " + this.results.getResults().size());
+			System.out.println("Mapper(RC):" + this.id + "> send()");
 		}
 		
 		/*
@@ -74,7 +74,7 @@ public class MapperToReducerClient extends Client {
 		this.in.readBoolean();
 		
 		if (Constants.debugging) {
-			System.out.println("Mapper(RC)> return()");
+			System.out.println("Mapper(RC):" + this.id + "> return()");
 			
 		}
 	}

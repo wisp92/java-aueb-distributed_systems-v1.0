@@ -30,6 +30,7 @@ public class MapperServer extends Server {
 	
 	private final MapperDatabase database;	
 	private final String google_api_key;
+	private int id;
 	
 	public MapperServer(
 			Socket socket,
@@ -38,18 +39,22 @@ public class MapperServer extends Server {
 			) throws IOException{
 		super(socket);
 		
-		this.database = database;
+		this.database        = database;
 		this.google_api_key  = google_api_key;
+		this.id              = -1;
 	}
 	/*
 	 * (non-Javadoc)
 	 * @see direction_api.common.Server#task()
 	 */
 	@Override
-	protected void task() throws IOException {
+	protected void task() throws IOException, InterruptedException {
 		
-		MapperToReducerClient thread;
-		boolean completed = true;
+		/*
+		 * By setting completed to false we inform the master that
+		 * something went wrong.
+		 */
+		boolean completed = false;
 		
 		try {
 			
@@ -58,15 +63,15 @@ public class MapperServer extends Server {
 			 * socket information of the reducer that we are supposed to sent the
 			 * results.
 			 */
-			int id = this.in.readInt();
+			this.id = this.in.readInt();
 			Query query = this.readObject(this.in.readObject(), Query.class);
 			SocketInformation reducer_socket = this.readObject(
 					this.in.readObject(), SocketInformation.class);
 			
 			if (Constants.debugging) {
-				System.out.println("Mapper(S)> connection_id: " + id);
-				System.out.println("Mapper(S)> query: " + query.toString());
-				System.out.println("Mapper(S)> after() = " + reducer_socket.toString());
+				System.out.println("Mapper(S)> connection_id: " + this.id);
+				System.out.println("Mapper(S):" + this.id + "> query: " + query.toString());
+				System.out.println("Mapper(S):" + this.id + "> after() = " + reducer_socket.toString());
 			}
 			
 			/*
@@ -79,13 +84,14 @@ public class MapperServer extends Server {
 			}
 			
 			if (Constants.debugging) {
-				System.out.println("Mapper(S)> database_results: " + (!results.getResults().isEmpty()));
+				System.out.println("Mapper(S):" + this.id + "> database_results: " +
+						(!results.getResults().isEmpty()));
 			}
 			
 			if (results.getResults().isEmpty()) {
 				
 				if (Constants.debugging) {
-					System.out.println("Mapper(S)> get(google_api)");
+					System.out.println("Mapper(S):" + this.id + "> get(google_api)");
 				}
 				
 				/*
@@ -95,8 +101,8 @@ public class MapperServer extends Server {
 				Route route = getRouteFromAPI(query);
 				
 				if (Constants.debugging) {
-					System.out.println("Mapper(S)> route: " + route.toString());
-					System.out.println("Mapper(S)> update_database()");
+					System.out.println("Mapper(S):" + this.id + "> route: " + route.toString());
+					System.out.println("Mapper(S):" + this.id + "> update_database()");
 				}
 				
 				synchronized (this.database) {
@@ -120,25 +126,29 @@ public class MapperServer extends Server {
 			 */
 			
 			if (Constants.debugging) {
-				System.out.println("Mapper(S)> connect(after())");
+				System.out.println("Mapper(S):" + this.id + "> connect(after())");
 			}
 			
-			thread = new MapperToReducerClient(reducer_socket, id, results);
-			thread.start();
-			
-			while (!thread.isCompleted()) {
-				sleep(1000);
+			try (MapperToReducerClient thread = new MapperToReducerClient(
+					reducer_socket, this.id, results)) {
+				
+				thread.start();
+				
+				while (!thread.isCompleted()) {
+					Thread.sleep(Constants.max_sleep_time);
+				}
+				
 			}
 			
-		} catch (ClassNotFoundException | InterruptedException | IOException ex) {
+			completed = true;
 			
+		} catch (ClassNotFoundException ex) {
+			
+			ex.printStackTrace();
 			/*
-			 * By setting completed to false we inform the master that
-			 * something went wrong.
+			 * If an object can't be recognized we stop the execution.
 			 */
-			completed = false;
-			
-			ex.printStackTrace(); // TODO: Should be checked in the future.
+			throw new IOException();
 			
 		} finally {
 			
@@ -148,7 +158,7 @@ public class MapperServer extends Server {
 			 */
 			
 			if (Constants.debugging) {
-				System.out.println("Mapper(S)> return(" + completed + ")");
+				System.out.println("Mapper(S):" + this.id + "> return(" + completed + ")");
 			}
 			
 			this.out.writeBoolean(completed);
@@ -193,7 +203,13 @@ public class MapperServer extends Server {
 			route = builder.toString();
 			
 		} catch (IOException ex) {
-			ex.printStackTrace(); // TODO: Should be checked in the future.
+			
+			/*
+			 * Exceptions at this point should not stop the execution in case
+			 * we want to retry some times.
+			 */
+			ex.printStackTrace();
+			
 		}
 		
 		return new Route(query, route);
