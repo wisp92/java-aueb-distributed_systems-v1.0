@@ -1,3 +1,7 @@
 /bin/
 /mapper.sqlite3
 /google_api_key
+/mapper.sqlite3-journal
+/mapper.sqlite3.0
+/mapper.sqlite3.1
+/mapper.sqlite3.2

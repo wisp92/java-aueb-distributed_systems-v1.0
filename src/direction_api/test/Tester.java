@@ -470,12 +470,15 @@ class ServerInitializer {
 			Master master = (Master)(this.master.getServer().getServer());
 			ArrayList<SocketInformation> mapper_sockets = new ArrayList<SocketInformation>();
 			
-			for (Entry<RunnableServer> mapper : this.mappers) {
+			for (int i = 0; i < this.mappers.size(); i ++) {
 				
+				Entry<RunnableServer> mapper = this.mappers.get(i);
+				((Mapper)mapper.getServer().getServer()).setDatabase(Mapper.default_database_name + "." + i);
 				mapper_sockets.add(mapper.getSocketInformation());
 				mapper.getServer().start();
-				
+
 			}
+			
 			master.setMappers(mapper_sockets);
 			
 			/*
